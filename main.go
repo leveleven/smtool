@@ -144,7 +144,7 @@ func main() {
 }
 
 func newParams(path string) (params, error) {
-	filepath := filepath.Join(path, metadata)
+	filepath := filepath.Join(path)
 	if !fileExists(filepath) {
 		return params{}, fmt.Errorf("postdata_metedata does not exist in directory")
 	}
