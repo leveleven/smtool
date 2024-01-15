@@ -21,9 +21,10 @@ import (
 	"github.com/spacemeshos/post/shared"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-const metadata = "postdata_metadata.json"
+// const metadata = "postdata_metadata.json"
 
 type params struct {
 	nodeId          []byte
@@ -119,7 +120,8 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			path, _ := cmd.Flags().GetString("path")
 			// 加载postdata_metadata.json
-			params, err := newParams(path)
+			logLevel, _ := cmd.Flags().GetInt8("logLevel")
+			params, err := newParams(path, logLevel)
 			if err != nil {
 				fmt.Println("failed to new params: ", err.Error())
 				return
@@ -143,7 +145,7 @@ func main() {
 	}
 }
 
-func newParams(path string) (params, error) {
+func newParams(path string, logLevel int8) (params, error) {
 	filepath := filepath.Join(path)
 	if !fileExists(filepath) {
 		return params{}, fmt.Errorf("postdata_metedata does not exist in directory")
@@ -152,6 +154,27 @@ func newParams(path string) (params, error) {
 	if err != nil {
 		return params{}, err
 	}
+	zapCfg := zap.Config{
+		Level:    zap.NewAtomicLevelAt(zapcore.Level(logLevel)),
+		Encoding: "console",
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:        "T",
+			LevelKey:       "L",
+			NameKey:        "N",
+			MessageKey:     "M",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.CapitalLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.StringDurationEncoder,
+		},
+		OutputPaths:      []string{"stdout"},
+		ErrorOutputPaths: []string{"stderr"},
+	}
+
+	logger, err := zapCfg.Build()
+	if err != nil {
+		log.Fatalln("failed to initialize zap logger:", err)
+	}
 	return params{
 		nodeId:          metadata.NodeId,
 		commitmentAtxId: metadata.CommitmentAtxId,
@@ -159,6 +182,7 @@ func newParams(path string) (params, error) {
 		numUnits:        metadata.NumUnits,
 		maxFileSize:     metadata.MaxFileSize,
 		commitment:      oracle.CommitmentBytes(metadata.NodeId, metadata.CommitmentAtxId),
+		logger:          logger,
 	}, nil
 }
 
