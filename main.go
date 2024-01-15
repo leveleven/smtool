@@ -17,6 +17,7 @@ import (
 	"github.com/spacemeshos/go-spacemesh/common/types"
 	"github.com/spacemeshos/post/config"
 	"github.com/spacemeshos/post/initialization"
+	"github.com/spacemeshos/post/internal/postrs"
 	"github.com/spacemeshos/post/oracle"
 	"github.com/spacemeshos/post/shared"
 	"github.com/spf13/cobra"
@@ -43,6 +44,10 @@ type params struct {
 	nonceValue   atomic.Pointer[[]byte]
 
 	logger *zap.Logger
+}
+
+func CPUProviderID() uint32 {
+	return postrs.CPUProviderID()
 }
 
 func load(filename string, dst scale.Decodable) error {
@@ -199,8 +204,9 @@ func (p *params) generateNonce() error {
 	p.powDifficultyFunc = shared.PowDifficulty
 	difficulty := p.powDifficultyFunc(numLabels)
 
+	cpuProviderID := CPUProviderID()
 	wo, err := oracle.New(
-		oracle.WithProviderID(p.providerID),
+		oracle.WithProviderID(&cpuProviderID),
 		oracle.WithCommitment(p.commitment),
 		oracle.WithVRFDifficulty(difficulty),
 		oracle.WithScryptParams(scrypt),
