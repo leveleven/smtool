@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync/atomic"
+	"time"
 
 	"smtool/postrs"
 
@@ -215,7 +216,7 @@ func (p *params) generateNonce() error {
 	}
 	defer wo.Close()
 
-	p.logger.Info("initialization: no nonce found while computing labels, continue initializing")
+	p.logger.Info("generateNonce: no nonce found while computing labels, continue initializing")
 	if p.lastPosition.Load() == nil || *p.lastPosition.Load() < numLabels {
 		lastPos := numLabels
 		p.lastPosition.Store(&lastPos)
@@ -224,11 +225,12 @@ func (p *params) generateNonce() error {
 	// continue searching for a nonce
 	defer p.saveMetadata()
 
+	start := time.Now()
 	for i := uint64(0); i < math.MaxUint64; i += batchSize {
 		lastPos := i
 		p.lastPosition.Store(&lastPos)
 
-		p.logger.Debug("initialization: continue looking for a nonce",
+		p.logger.Debug("generateNonce: continue looking for a nonce",
 			zap.Uint64("startPosition", i),
 			zap.Uint64("batchSize", batchSize),
 		)
@@ -238,7 +240,7 @@ func (p *params) generateNonce() error {
 			return err
 		}
 		if res.Nonce != nil {
-			p.logger.Debug("initialization: found nonce",
+			p.logger.Debug("generateNonce: found nonce",
 				zap.Uint64("nonce", *res.Nonce),
 			)
 
@@ -246,6 +248,8 @@ func (p *params) generateNonce() error {
 			return nil
 		}
 	}
+	elapsed := time.Since(start)
+	p.logger.Info("generateNonce: finish find nonce", zap.String("spendtime", elapsed.String()))
 	return nil
 }
 
