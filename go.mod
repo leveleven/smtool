@@ -5,8 +5,8 @@ go 1.21.5
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/spacemeshos/go-scale v1.1.12
-	github.com/spacemeshos/go-spacemesh v1.3.2
-	github.com/spacemeshos/post v0.10.4
+	github.com/spacemeshos/go-spacemesh v1.2.13
+	github.com/spacemeshos/post v0.10.1
 	github.com/spf13/cobra v1.8.0
 	go.uber.org/zap v1.26.0
 )

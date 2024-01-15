@@ -11,21 +11,20 @@ import (
 	"path/filepath"
 	"sync/atomic"
 
+	"smtool/postrs"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/spacemeshos/go-scale"
 	"github.com/spacemeshos/go-spacemesh/codec"
 	"github.com/spacemeshos/go-spacemesh/common/types"
 	"github.com/spacemeshos/post/config"
 	"github.com/spacemeshos/post/initialization"
-	"github.com/spacemeshos/post/internal/postrs"
 	"github.com/spacemeshos/post/oracle"
 	"github.com/spacemeshos/post/shared"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
-
-// const metadata = "postdata_metadata.json"
 
 type params struct {
 	nodeId          []byte
@@ -35,7 +34,6 @@ type params struct {
 	maxFileSize     uint64
 
 	dataDir           string
-	providerID        *uint32
 	commitment        []byte
 	powDifficultyFunc func(uint64) []byte
 
@@ -204,7 +202,7 @@ func (p *params) generateNonce() error {
 	p.powDifficultyFunc = shared.PowDifficulty
 	difficulty := p.powDifficultyFunc(numLabels)
 
-	cpuProviderID := CPUProviderID()
+	cpuProviderID := postrs.CPUProviderID()
 	wo, err := oracle.New(
 		oracle.WithProviderID(&cpuProviderID),
 		oracle.WithCommitment(p.commitment),
