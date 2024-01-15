@@ -121,7 +121,7 @@ func main() {
 			path, _ := cmd.Flags().GetString("path")
 			// 加载postdata_metadata.json
 			// logLevel, _ := cmd.Flags().GetInt8("logLevel")
-			params, err := newParams(path, 1)
+			params, err := newParams(path)
 			if err != nil {
 				fmt.Println("failed to new params: ", err.Error())
 				return
@@ -137,7 +137,6 @@ func main() {
 	rootCmd.AddCommand(parsePost)
 
 	genonce.Flags().String("path", "", "node data dir")
-	// genonce.Flags().Int8("logLevel", 0, "node data dir")
 	rootCmd.AddCommand(genonce)
 
 	// 运行根命令
@@ -146,7 +145,7 @@ func main() {
 	}
 }
 
-func newParams(path string, logLevel int8) (params, error) {
+func newParams(path string) (params, error) {
 	filepath := filepath.Join(path)
 	if !fileExists(filepath) {
 		return params{}, fmt.Errorf("postdata_metedata does not exist in directory")
@@ -156,7 +155,7 @@ func newParams(path string, logLevel int8) (params, error) {
 		return params{}, err
 	}
 	zapCfg := zap.Config{
-		Level:    zap.NewAtomicLevelAt(zapcore.Level(logLevel)),
+		Level:    zap.NewAtomicLevelAt(zapcore.DebugLevel),
 		Encoding: "console",
 		EncoderConfig: zapcore.EncoderConfig{
 			TimeKey:        "T",
