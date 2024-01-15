@@ -137,6 +137,7 @@ func main() {
 	rootCmd.AddCommand(parsePost)
 
 	genonce.Flags().String("path", "", "node data dir")
+	genonce.Flags().Int8("logLevel", 0, "node data dir")
 	rootCmd.AddCommand(genonce)
 
 	// 运行根命令
