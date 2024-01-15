@@ -32,10 +32,10 @@ type params struct {
 	numUnits        uint32
 	maxFileSize     uint64
 
-	dataDir    string
-	providerID *uint32
-	commitment []byte
-	difficulty []byte
+	dataDir           string
+	providerID        *uint32
+	commitment        []byte
+	powDifficultyFunc func(uint64) []byte
 
 	lastPosition atomic.Pointer[uint64]
 	nonce        atomic.Pointer[uint64]
@@ -172,11 +172,13 @@ func (p *params) generateNonce() error {
 	batchSize := uint64(config.DefaultComputeBatchSize)
 	// 读matedata
 	numLabels := uint64(p.numUnits) * p.labelsPerUnit
+	p.powDifficultyFunc = shared.PowDifficulty
+	difficulty := initialization.powDifficultyFunc(numLabels)
 
 	wo, err := oracle.New(
 		oracle.WithProviderID(p.providerID),
 		oracle.WithCommitment(p.commitment),
-		oracle.WithVRFDifficulty(p.difficulty),
+		oracle.WithVRFDifficulty(difficulty),
 		oracle.WithScryptParams(scrypt),
 		oracle.WithLogger(p.logger),
 	)
