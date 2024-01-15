@@ -2,13 +2,13 @@ module smtool
 
 go 1.21.5
 
-toolchain go1.21.6
-
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/spacemeshos/go-scale v1.1.12
-	github.com/spacemeshos/go-spacemesh v1.3.2
+	github.com/spacemeshos/go-spacemesh v1.2.13
+	github.com/spacemeshos/post v0.10.1
 	github.com/spf13/cobra v1.8.0
+	go.uber.org/zap v1.26.0
 )
 
 require (
@@ -20,18 +20,17 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
+	github.com/natefinch/atomic v1.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/spacemeshos/merkle-tree v0.2.3 // indirect
 	github.com/spacemeshos/poet v0.9.7 // indirect
-	github.com/spacemeshos/post v0.10.2 // indirect
 	github.com/spacemeshos/sha256-simd v0.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/zeebo/blake3 v0.2.3 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
