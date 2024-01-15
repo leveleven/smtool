@@ -120,8 +120,8 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			path, _ := cmd.Flags().GetString("path")
 			// 加载postdata_metadata.json
-			logLevel, _ := cmd.Flags().GetInt8("logLevel")
-			params, err := newParams(path, logLevel)
+			// logLevel, _ := cmd.Flags().GetInt8("logLevel")
+			params, err := newParams(path, 1)
 			if err != nil {
 				fmt.Println("failed to new params: ", err.Error())
 				return
@@ -137,7 +137,7 @@ func main() {
 	rootCmd.AddCommand(parsePost)
 
 	genonce.Flags().String("path", "", "node data dir")
-	genonce.Flags().Int8("logLevel", 0, "node data dir")
+	// genonce.Flags().Int8("logLevel", 0, "node data dir")
 	rootCmd.AddCommand(genonce)
 
 	// 运行根命令
