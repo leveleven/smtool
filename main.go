@@ -173,7 +173,7 @@ func (p *params) generateNonce() error {
 	// 读matedata
 	numLabels := uint64(p.numUnits) * p.labelsPerUnit
 	p.powDifficultyFunc = shared.PowDifficulty
-	difficulty := initialization.powDifficultyFunc(numLabels)
+	difficulty := p.powDifficultyFunc(numLabels)
 
 	wo, err := oracle.New(
 		oracle.WithProviderID(p.providerID),
