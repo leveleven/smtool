@@ -35,6 +35,7 @@ type params struct {
 	maxFileSize     uint64
 
 	dataDir           string
+	provider          uint32
 	commitment        []byte
 	powDifficultyFunc func(uint64) []byte
 
@@ -117,6 +118,9 @@ func main() {
 		},
 	}
 
+	parsePost.Flags().String("path", "", "post.bin absolute path")
+	rootCmd.AddCommand(parsePost)
+
 	genonce := &cobra.Command{
 		Use:   "genonce",
 		Short: "Execute generate nonce",
@@ -124,8 +128,9 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			path, _ := cmd.Flags().GetString("path")
 			// 加载postdata_metadata.json
-			// logLevel, _ := cmd.Flags().GetInt8("logLevel")
-			params, err := newParams(path)
+			logLevel, _ := cmd.Flags().GetInt8("logLevel")
+			provider, _ := cmd.Flags().GetUint32("provider")
+			params, err := newParams(path, logLevel, provider)
 			if err != nil {
 				fmt.Println("failed to new params: ", err.Error())
 				return
@@ -137,9 +142,8 @@ func main() {
 		},
 	}
 
-	parsePost.Flags().String("path", "", "post.bin absolute path")
-	rootCmd.AddCommand(parsePost)
-
+	genonce.Flags().Uint32("provider", postrs.CPUProviderID(), "provider id")
+	genonce.Flags().Int8("logLevel", int8(zapcore.InfoLevel), "log level")
 	genonce.Flags().String("path", "", "node data dir")
 	rootCmd.AddCommand(genonce)
 
@@ -149,7 +153,7 @@ func main() {
 	}
 }
 
-func newParams(path string) (params, error) {
+func newParams(path string, logLevel int8, provider uint32) (params, error) {
 	filepath := filepath.Join(path)
 	if !fileExists(filepath) {
 		return params{}, fmt.Errorf("postdata_metedata does not exist in directory")
@@ -159,7 +163,7 @@ func newParams(path string) (params, error) {
 		return params{}, err
 	}
 	zapCfg := zap.Config{
-		Level:    zap.NewAtomicLevelAt(zapcore.DebugLevel),
+		Level:    zap.NewAtomicLevelAt(zapcore.Level(logLevel)),
 		Encoding: "console",
 		EncoderConfig: zapcore.EncoderConfig{
 			TimeKey:        "T",
@@ -187,6 +191,7 @@ func newParams(path string) (params, error) {
 		maxFileSize:     metadata.MaxFileSize,
 		commitment:      oracle.CommitmentBytes(metadata.NodeId, metadata.CommitmentAtxId),
 		logger:          logger,
+		provider:        provider,
 	}, nil
 }
 
@@ -203,9 +208,8 @@ func (p *params) generateNonce() error {
 	p.powDifficultyFunc = shared.PowDifficulty
 	difficulty := p.powDifficultyFunc(numLabels)
 
-	cpuProviderID := postrs.CPUProviderID()
 	wo, err := oracle.New(
-		oracle.WithProviderID(&cpuProviderID),
+		oracle.WithProviderID(&p.provider),
 		oracle.WithCommitment(p.commitment),
 		oracle.WithVRFDifficulty(difficulty),
 		oracle.WithScryptParams(scrypt),
