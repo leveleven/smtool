@@ -221,7 +221,7 @@ func (p *params) generateNonce() error {
 	}
 	defer wo.Close()
 
-	p.logger.Info("generateNonce: no nonce found while computing labels, continue initializing")
+	p.logger.Info("generateNonce: no nonce found while computing labels, continue initializing", zap.String("datadir", p.dataDir))
 	if p.lastPosition.Load() == nil || *p.lastPosition.Load() < numLabels {
 		lastPos := numLabels
 		p.lastPosition.Store(&lastPos)
@@ -250,7 +250,7 @@ func (p *params) generateNonce() error {
 			)
 
 			p.nonce.Store(res.Nonce)
-			return nil
+			break
 		}
 	}
 	elapsed := time.Since(start)
