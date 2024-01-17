@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"hash/crc64"
 	"io"
@@ -26,6 +27,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
+
+var ErrNonceExists = errors.New("nonce is in postdata_metadata.json")
 
 type params struct {
 	nodeId          []byte
@@ -132,6 +135,10 @@ func main() {
 			provider, _ := cmd.Flags().GetUint32("provider")
 			params, err := newParams(path, logLevel, provider)
 			if err != nil {
+				if err == ErrNonceExists {
+					fmt.Println("nonce is exists")
+					return
+				}
 				fmt.Println("failed to new params: ", err.Error())
 				return
 			}
@@ -161,6 +168,9 @@ func newParams(path string, logLevel int8, provider uint32) (params, error) {
 	metadata, err := initialization.LoadMetadata(filepath)
 	if err != nil {
 		return params{}, err
+	}
+	if metadata.Nonce != nil {
+		return params{}, ErrNonceExists
 	}
 	zapCfg := zap.Config{
 		Level:    zap.NewAtomicLevelAt(zapcore.Level(logLevel)),
