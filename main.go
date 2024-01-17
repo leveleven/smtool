@@ -192,6 +192,7 @@ func newParams(path string, logLevel int8, provider uint32) (params, error) {
 		commitment:      oracle.CommitmentBytes(metadata.NodeId, metadata.CommitmentAtxId),
 		logger:          logger,
 		provider:        provider,
+		dataDir:         path,
 	}, nil
 }
 
